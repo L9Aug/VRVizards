@@ -9,6 +9,7 @@ public class PlayerInputManager : MonoBehaviour
     VRTK_ControllerEvents myEventsController;
     public ArcController myArc;
     public PlayerMovement myMovement;
+    public TrailController myTrail;
 
     // Use this for initialization
     void Start()
@@ -17,7 +18,8 @@ public class PlayerInputManager : MonoBehaviour
         myEventsController.TouchpadTouchStart += new ControllerInteractionEventHandler(TouchpadTouchPresent);
         myEventsController.TouchpadTouchEnd += new ControllerInteractionEventHandler(TouchpadRelease);
         myEventsController.TouchpadPressed += new ControllerInteractionEventHandler(TouchpadPressed);
-
+        myEventsController.TriggerPressed += new ControllerInteractionEventHandler(TriggerPressed);
+        myEventsController.TriggerReleased += new ControllerInteractionEventHandler(TriggerReleased);
     }
 
     // Update is called once per frame
@@ -40,4 +42,16 @@ public class PlayerInputManager : MonoBehaviour
     {
         myArc.EndDraw();
     }
+
+    void TriggerPressed(object sender, ControllerInteractionEventArgs e)
+    {
+        myTrail.SetDrawing(true);
+    }
+
+    void TriggerReleased(object sender, ControllerInteractionEventArgs e)
+    {
+        myTrail.SetDrawing(false);
+    }
+
+
 }
