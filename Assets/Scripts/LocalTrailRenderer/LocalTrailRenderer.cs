@@ -23,19 +23,63 @@ public class LocalTrailRenderer : MonoBehaviour
     [Tooltip("The smallest distance required before adding a new point.")]
     public float Resolution = 0.1f;
 
+    public Transform HMD;
+
     private LineRenderer myLine;
     private Vector3 LastPos;
 
     public Vector3 GetImageCenter()
     {
-        Vector3 Center = Vector3.zero;
+        Vector3 Smallest = myLine.GetPosition(0);
+        Vector3 Largest = myLine.GetPosition(0);
 
         for(int i = 0; i < myLine.positionCount; ++i)
         {
-            Center += myLine.GetPosition(i);
+            Vector3 current = myLine.GetPosition(i);
+            if(current.x < Smallest.x)
+            {
+                Smallest.x = current.x;
+            }
+            else if(current.x > Largest.x)
+            {
+                Largest.x = current.x;
+            }
+
+            if (current.y < Smallest.y)
+            {
+                Smallest.y = current.y;
+            }
+            else if (current.y > Largest.y)
+            {
+                Largest.y = current.y;
+            }
+
+            if (current.z < Smallest.z)
+            {
+                Smallest.z = current.z;
+            }
+            else if (current.z > Largest.z)
+            {
+                Largest.z = current.z;
+            }
         }
 
-        return Center / (float)myLine.positionCount;
+        return (Smallest + Largest) / 2f;
+    }
+
+    public Vector3 GetPointNormal()
+    {
+        Vector3 Center = GetImageCenter();
+        Vector3 Normal = Vector3.zero;
+        int NumAverages = 5;
+
+        for(int i = 0; i < 5; ++i)
+        {
+            Vector3 TempNormal = Vector3.Cross(myLine.GetPosition(Random.Range(0, myLine.positionCount)) - Center, myLine.GetPosition(Random.Range(0, myLine.positionCount)) - Center);
+            Normal += (Vector3.Angle(TempNormal, (HMD.position - Target.position)) > 90) ? -TempNormal : TempNormal;
+        }
+
+        return Normal / (float)NumAverages;
     }
 
     public float GetImageSize()

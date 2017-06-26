@@ -14,7 +14,10 @@ public class TrailController : MonoBehaviour
     public Transform HMD;
     public Camera orthoCam;
     bool isDrawing;
-    public Texture2D capturedImage;    
+    public Texture2D capturedImage;
+
+    public string FolderPath;
+    public string ImageName;
 
     // Use this for initialization
     void Start()
@@ -28,8 +31,8 @@ public class TrailController : MonoBehaviour
         BoolCondition startDrawingCon = new BoolCondition(GetIsDrawing);
         NotCondition endDrawingCon = new NotCondition(startDrawingCon);
 
-        Transition start = new Transition("Start Drawing", startDrawingCon, new List<Action> { PlaceCamera, EnableTrail });
-        Transition end = new Transition("Finish Drawing", endDrawingCon, new List<Action> { Snapshot, DisableTrail });
+        Transition start = new Transition("Start Drawing", startDrawingCon, new List<Action> { EnableTrail });
+        Transition end = new Transition("Finish Drawing", endDrawingCon, new List<Action> { Snapshot });
 
         State idle = new State("Idle", new List<Transition> { start }, new List<Action> {  }, new List<Action> { }, new List<Action> { });
         State drawing = new State("Drawing", new List<Transition> { end }, new List<Action> { }, new List<Action> { }, new List<Action> { });
@@ -50,12 +53,13 @@ public class TrailController : MonoBehaviour
 
     void Snapshot()
     {
-        StartCoroutine("TakeSnapshot");
+        StartCoroutine(TakeSnapshot());
     }
 
     IEnumerator TakeSnapshot()
     {
         PositionCamera();
+        yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
         capturedImage = new Texture2D(256, 256, TextureFormat.RGBA32, false);
         RenderTexture.active = orthoCam.targetTexture;
@@ -64,16 +68,29 @@ public class TrailController : MonoBehaviour
         capturedImage.Apply();
         byte[] bytes = capturedImage.EncodeToPNG();
         Destroy(capturedImage);
-        File.WriteAllBytes("D:/up690813/VRVizards/VRVizards/TrainingImages/Test.png", bytes );
+        File.WriteAllBytes(GetFilePath(), bytes );
         Debug.Log("Written to file");
         orthoCam.gameObject.SetActive(false);
+        DisableTrail();
+    }
+
+    string GetFilePath()
+    {
+        int Iterations = 0;
+        string RetString = "D:/up690813/VRVizards/VRVizards/TrainingImages/" + FolderPath + "/" + ImageName + Iterations + ".png";
+        while (File.Exists(RetString))
+        {
+            ++Iterations;
+            RetString = "D:/up690813/VRVizards/VRVizards/TrainingImages/" + FolderPath + "/" + ImageName + Iterations + ".png";
+        }
+        return RetString;
     }
 
     void PositionCamera()
     {
         orthoCam.orthographicSize = TR.GetImageSize();
-        orthoCam.transform.position = HMD.position;
-        orthoCam.transform.LookAt(TR.GetImageCenter());
+        orthoCam.transform.position = (TR.GetPointNormal().normalized * 3) + TR.Target.position;
+        orthoCam.transform.LookAt(TR.GetImageCenter()+transform.parent.position);
     }
 
     bool GetIsDrawing()
