@@ -95,7 +95,6 @@ public class LocalTrailRenderer : MonoBehaviour
                 size = Dist;
             }
         }
-        print(size);
         return size;
     }
 
@@ -125,6 +124,7 @@ public class LocalTrailRenderer : MonoBehaviour
     {
         // when this object is disabled also turn off the line renderer
         myLine.enabled = false;
+        myLine.positionCount = 0;
     }
 
     // Add a point to the line renderer

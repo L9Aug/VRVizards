@@ -15,6 +15,7 @@ public class TrailController : MonoBehaviour
     public Camera orthoCam;
     bool isDrawing;
     public Texture2D capturedImage;
+    public GameObject VisibleTrail;
 
     public string FolderPath;
     public string ImageName;
@@ -44,13 +45,6 @@ public class TrailController : MonoBehaviour
         SM.InitMachine();
     }
 
-    void PlaceCamera()
-    {
-        orthoCam.transform.position = transform.position + (transform.forward * -3);
-        orthoCam.transform.LookAt(transform);
-        orthoCam.gameObject.SetActive(true);
-    }
-
     void Snapshot()
     {
         StartCoroutine(TakeSnapshot());
@@ -59,6 +53,7 @@ public class TrailController : MonoBehaviour
     IEnumerator TakeSnapshot()
     {
         PositionCamera();
+        orthoCam.gameObject.SetActive(true);
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
         capturedImage = new Texture2D(256, 256, TextureFormat.RGBA32, false);
@@ -101,11 +96,13 @@ public class TrailController : MonoBehaviour
     void EnableTrail()
     {
         TR.enabled = true;
+        VisibleTrail.SetActive(true);
     }
 
     void DisableTrail()
     {
         TR.enabled = false;
+        VisibleTrail.SetActive(false);
     }
 
     // Update is called once per frame
