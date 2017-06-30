@@ -10,6 +10,7 @@ public class PlayerInputManager : MonoBehaviour
     public ArcController myArc;
     public PlayerMovement myMovement;
     public TrailController myTrail;
+    public GrabObj myGrabber;
 
     // Use this for initialization
     void Start()
@@ -20,12 +21,18 @@ public class PlayerInputManager : MonoBehaviour
         myEventsController.TouchpadPressed += new ControllerInteractionEventHandler(TouchpadPressed);
         myEventsController.TriggerPressed += new ControllerInteractionEventHandler(TriggerPressed);
         myEventsController.TriggerReleased += new ControllerInteractionEventHandler(TriggerReleased);
+        myEventsController.GripReleased += new ControllerInteractionEventHandler(GrabAction);
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    void GrabAction(object sender, ControllerInteractionEventArgs e)
+    {
+        myGrabber.GrabAction();
     }
 
     void TouchpadPressed(object sender, ControllerInteractionEventArgs e)
